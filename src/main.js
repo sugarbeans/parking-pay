@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
-import UTIL from './util'
 import router from "./router";
 import store from "./store";
+import "./assets/css/reset.css";
 import "./http";
 import scroll from './components/scroll'
 Vue.use(scroll)
@@ -11,17 +11,15 @@ Vue.component('navbar',Navbar)
 
 import { Dialog } from 'vant';
 Vue.use(Dialog);
-import { Notify } from 'vant';
-Vue.use(Notify);
+import { Toast } from 'vant';
+Vue.use(Toast);
 import {Overlay} from 'vant'
 Vue.use(Overlay)
-
-Vue.prototype.$UTIL = UTIL
+import { CellGroup, Field, Button, Picker, Popup} from 'vant';
+Vue.use(CellGroup).use(Field).use(Button).use(Picker).use(Popup)
 Vue.config.productionTip = false
-
+Vue.prototype.$store = store;
 new Vue({
   router,
-  store,
-  UTIL,
   render: h => h(App),
 }).$mount('#app')

@@ -1,7 +1,6 @@
 import HttpUtils from "./http";
-import store from './../store'
 import Vue from "vue";
-const proxyUrl = '/api'
+const proxyUrl = ''
 class Https {
     GETDATA = (url, parmas) => {
         return HttpUtils.post(proxyUrl +url, parmas)
@@ -9,12 +8,7 @@ class Https {
 }
 
 let setPost = (url, data) => {
-    let params = {
-        usid: store.state.usid,
-        ...data
-    }
-    console.log(params, 'params')
-    return HttpUtils.post(proxyUrl + url, JSON.stringify(params));
+    return HttpUtils.post(proxyUrl + url, JSON.stringify(data));
 };
 let setGet = (url, data) => {
     console.log(data, 'params')

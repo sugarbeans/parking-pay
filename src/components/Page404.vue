@@ -1,8 +1,7 @@
 <template>
   <div class="page-404">
-    <p class="page-404_title">page not found</p>
     <div class="d2-mt">
-      抱歉，页面无法找到，请稍后访问！
+      <p class="page-404_title">恭喜你，门票已成功激活！</p>
     </div>
   </div>
 </template>
@@ -16,13 +15,18 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    .page-404_title {
-      font-size: 20px;
-      color: #FFF;
-    }
   }
   .d2-mt {
-    color: #fff;
+    width: 100%;
+    height: 30%;
+    background-image url("./../assets/img/success.png")
+    background-size 100% 100%;
     font-size: .42rem;
+    text-align center
+    .page-404_title {
+      color: #51e162
+      line-height 70px;
+      font-size: 20px;
+    }
   }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <img style="position: absolute;z-index:48; right: 20px; top: 200px; width: 50px;" alt="Vue logo" src="./assets/logo.png">
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
@@ -39,6 +38,18 @@ export default {
     isLoading() {
       return this.$store.state.isLoading
     },
+  },
+  created() {
+    this.isWeixin()
+  },
+  methods: {
+    isWeixin() {
+      if (navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1) {
+        this.$store.commit('update', {'isWeixinBrower': true})
+      } else {
+        this.$store.commit('update', {'isWeixinBrower': false})
+      }
+    }
   }
 }
 </script>

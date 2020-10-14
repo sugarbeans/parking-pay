@@ -1,71 +1,37 @@
 <template>
-  <div style="width: 100vw; height: 100vh;overflow: hidden;">
-    <navbar title="门票详情"></navbar>
-    <div class="order-detail" v-if="torder">
-      <div class="order-status">
-        <div style="display: flex; justify-content: space-between;align-items: center; height: 1.2rem; line-height: 1.2rem;">
-          <div style="font-size: .5rem;font-weight: bold;">{{$UTIL.returnOrderStatus(torder.ddzt)}}</div>
-          <div><span>￥</span><span style="font-size: .4rem;">{{torder.mont}}</span></div>
+  <div v-if="Md5OrderId">
+    <!--    <mp-toptips msg="{{errorMsg}}" type="error" show="{{showError}}"></mp-toptips>-->
+    <div class="swiper topMargin">
+        <div class="logo-box">
+          <img class="logo-image" src="./../assets/img/logo-bg.png">
         </div>
-        <div>订单号码: {{torder.orid}}</div>
-      </div>
-      <div class="order-header">
-        <div class="header-title">{{torder.szscenicname}}</div>
-        <div class="header-li"><span>游玩日期 </span>{{torder.dtstartdate}}-{{torder.dtenddate}}</div>
-        <div class="header-li"><span>购票人员 </span>{{torder.ornm}}</div>
-        <div class="header-li"><span>证件号码 </span>{{torder.orhm}}</div>
-        <div class="header-li"><span>手机号码 </span>{{torder.orph}}</div>
+        <div class="logo-info">
+          <div class="logo-info-a">智慧旅游 随心而行</div>
+        </div>
+        <div class="home-title" @click="showPicker=true">旅游卡激活</div>
+        <div class="main">
+          <div class="item"><span class="label">订单号： </span><span>{{activate.orderNo}}</span></div>
+          <div class="item"><span class="label">游客姓名： </span><span>{{activate.name}}</span></div>
+          <div class="item"><span class="label">手机号： </span><span>{{activate.mobile}}</span></div>
+          <div class="item"><span class="label">证件号码： </span><span>{{activate.cardNo}}</span></div>
+          <div class="item" style="border-top: 1px solid #cccccc;"><span class="label">产品名称： </span><span>{{product}}</span></div>
+          <div class="item" style="border-bottom: 1px solid #cccccc;" @click="showPicker=true"><span class="label">产品类型： </span>
+            <input type="text" v-model="productType" readonly style="border: none;" placeholder="点击--选择(必选)">
+          </div>
+          <div class="btn" @click="submit">激  活</div>
+        </div>
+      <div class="home-copy revealBottom">
+        <p>Copyright(C) 2004－2020 ectrip.com All Rights Reserved.</p>
+        <p>
+          技术支持 ©️
+          <a href="//m.ectrip.com">鼎游信息</a>
+        </p>
       </div>
     </div>
-    <div class="detail-items" v-if="torderlist">
-      <scroll>
-        <div class="item-order">
-          <div class="title">订单明细</div>
-          <div class="table">
-            <div class="t-header">
-              <div class="td1">票名</div>
-              <div class="td2">票类</div>
-              <div class="td3">数量</div>
-              <div class="td4">单价</div>
-            </div>
-            <div class="t-body" v-for="(item,index) in torderlist" :key="index">
-              <div class="td1">{{item.sztickettypename}}</div>
-              <div class="td2">{{item.szcrowdkindname}}</div>
-              <div class="td3">{{item.numb}}</div>
-              <div class="td4">￥{{item.pric}}</div>
-            </div>
-            <div class="t-footer">
-              <div class="td1">总计: <span class="td4">{{torder.mont}}元</span></div>
-              <div class="td1" >已付金额: <span class="td4">{{torder.zfmont}}元</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="item-order">
-          <div class="title">门票信息</div>
-          <div class="table-realname" v-for="(item, index) in torderlist" :key="index">
-            <div class="title" style="padding: .2rem 0;display: flex; justify-content: space-between;">
-              <div>{{item.sztickettypename}}</div>
-              <div style="background-color: #5bb85d;color: #fff;">&nbsp;&nbsp;{{item.numb}}人&nbsp;&nbsp;</div>
-            </div>
-            <div class="realname-list" v-for="(obj, index) in item.realnames" :key="index">
-              <div class="td1">
-                <div style="color: #333333;">{{obj.szcrowdkindname}}</div>
-                <div>{{obj.cname}}</div>
-                <div>{{obj.idcard}}</div>
-              </div>
-              <div class="td3"  @click="setQRCode(obj.ticketNoBase64)">
-                <div>二维码</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </scroll>
-    </div>
-    <van-dialog v-model="showQRCode" :showConfirmButton=false closeOnClickOverlay>
-      <div style="text-align: center;margin: .5rem 0;">
-        <img width="200px" height="200px" :src="QRCode" />
-      </div>
-    </van-dialog>
+    <van-popup :style="{ height: '37%' }" v-model="showPicker" :overlay=false round position="bottom">
+      <van-picker visible-item-count="5" show-toolbar  :columns="goodsType" @cancel="showPicker = false" @confirm="handleChangeGoodsType"
+      />
+    </van-popup>
   </div>
 </template>
 <script>
@@ -73,17 +39,19 @@
   export default {
     data() {
       return {
-        torder: null,
-        torderlist: null,
-        realnames: null,
-        showQRCode: false,
-        QRCode: '',
-        params: {}
+        goodsType: [],
+        activate: {},
+        product: '',
+        params: {},
+        showPicker: false,
+        productType: '',
+        type: '',
+        Md5OrderId: ''
       };
     },
     mounted() {
       let url = window.location.href;
-      if(url.indexOf('?') !== -1 && url.indexOf('&') !==-1) {
+      if(url.indexOf('?') !== -1) {
         let _arr = url.split('#')[1].split('?')[1].split('&')
         for(let i=0; i<_arr.length; i++) {
           this.params[_arr[i].split('=')[0]] = _arr[i].split('=')[1]
@@ -91,171 +59,158 @@
         this.getOrderDetail()
       } else {
         alert('链接或者二维码已失效')
-        this.$router.push('/error')
       }
     },
     methods: {
-      setQRCode(str) {
-        if(str) {
-          this.QRCode = 'data:image/png;base64,'+str
-          this.showQRCode = true
-        } else {
-          this.$notify('二维码有误，请联系管理员')
+      async getOrderDetail() {
+        this.$store.commit('update', {'isLoading': true})
+        let _data = await this.$get('/activate/show.do', {orderid: this.params.orderId})
+        this.$store.commit('update', {'isLoading': false})
+        if(_data.success) {
+          this.activate = _data.data.activate
+          this.Md5OrderId = this.params.orderId
+          this.product = _data.data.product
+          this.initGoodsType(_data.data.goodsType)
+        } else  {
+          this.$toast(`${_data.info},如有疑问请联系工作人员`)
         }
       },
-      async getOrderDetail() {
-        this.data = null
+      handleChangeGoodsType(obj) {
+        this.productType = obj.text
+        this.type = obj.gLG_TYPE
+        this.showPicker = false
+      },
+      initGoodsType(list) {
+        this.goodsType = []
+        list.forEach(item => {
+          item.text = item.gLG_NAME
+          this.goodsType.push(item)
+        })
+      },
+
+      async handleActive() {
         this.$store.commit('update', {'isLoading': true})
-        let _data = await this.$get('/orderview.action', this.params)
+        let _params = {
+          orderId: this.Md5OrderId,
+          goodtype: this.type,
+          ...this.activate
+        }
+        let _data = await this.$post('/activate/comsume.do', _params)
         this.$store.commit('update', {'isLoading': false})
-        if(_data.status) {
-          this.torder = _data.data.torder
-          this.realnames = _data.data.realnames
-          this.torderlist = _data.data.torderlist.map(item => {
-            item.realnames = []
-            this.realnames.forEach(obj => {
-              if(item.itickettypeid === obj.itickettypeid) {
-                item.realnames.push(obj)
-              }
-            })
-            return item
-          })
-        } else  {
-          this.$notify('系统超时，请稍后再试')
-          setTimeout(()=> this.$router.push('/error'), 2000)
+        if(_data.success) {
+          this.$toast('激活成功')
+          setTimeout(()=> this.$router.push('/error'), 4000)
+        }else {
+          this.$toast(`${_data.info},请稍后再试，或者联系工作人员`)
+        }
+      },
+      submit() {
+        if(this.productType) {
+          this.$dialog.alert({message: `确认激活--${this.productType}?\n一旦激活，无法更改`, closeOnClickOverlay: true}).then(()=> {
+            this.handleActive()
+          }).catch(() => {
+            this.$dialog.close
+          });
+        }else {
+          this.$toast.fail('请选择一种产品类型')
         }
       }
     }
   }
 </script>
 <style lang="stylus" scoped>
-  .order-detail {
+  .swiper{
     width: 100%;
-    height: 40%;
-    font-size: .3rem;
-    margin-top .85rem;
-    overflow hidden;
-    border-bottom .2rem solid #eeeeee;
-    .order-status, .order-header {
-      padding 0 .4rem;
-    }
-    .order-status {
-      height: 60%;
-      background-color #189bf3;
-      color: #fff;
-    }
-    .order-header {
-      height: 60%;
-      margin-top -15%;
-      background-color #ffffff;
-      border-radius .3rem;
-      .header-title {
-        text-align center
-        line-height .7rem;
-        height: .7rem;
-        font-size: .4rem;
-        border-bottom 1px solid #dddddd;
-      }
-      .header-li {
-        height: .6rem;
-        line-height .6rem;
-        color: #333333;
-        span {
-          color: #9a9a9a
-        }
-      }
-    }
+    height: 100vh;
+    background-image: url("./../assets/img/bg.jpg")
+    background-size 100% 100%;
   }
-  .detail-items {
+  .logo-box{
+    width: 170px;
+    height: .8rem;
+    position: relative;
+  }
+  .logo-box img{
     width: 100%;
-    height: 50%
-    overflow hidden
-    .item-order {
-      border-top .4rem solid #f7f7f7;
-      .title {
-        padding-left .4rem;
-        height: .7rem;
-        font-size: .36rem;
-        line-height: .7rem;
-        border-bottom 1px solid #eeeeee;
-      }
-      .table {
-        padding .2rem;
-        font-size: .32rem;
-        line-height: .7rem;
-        border-bottom .2rem solid #eeeeee;
-        .td1 {
-          flex 1
-        }
-        .td2, .td3 {
-          width: 18%;
-          font-size: .28rem;
-        }
-        .td4 {
-          width: 15%;
-          color: #f68020;
-        }
-        .t-header, .t-body, .t-footer {
-          display flex
-          justify-content space-between
-        }
-        .t-body {
-          font-size .28rem;
-          background-color #f5f5f5
-        }
-        .t-footer {
-          font-size: .32rem;
-        }
-      }
-      .table-realname {
-        padding .2rem;
-        font-size: .3rem;
-        .title {
-          height: .6rem;
-          line-height .6rem;
-        }
-        .realname-list{
-          display flex;
-          justify-content space-between;
-          padding .2rem;
-          height: 1.5rem;
-          border 1px solid #dddddd;
-          border-radius .1rem;
-          margin-bottom .2rem;
-          .td1{
-            width: 55%;
-            div{
-              line-height .5rem;
-              height: .5rem;
-              color: #999999;
-            }
-
-          }
-          .td2,.td3 {
-            width: 22.5%;
-            text-align center;
-            padding .5rem .1rem;
-            color: #ffffff;
-          }
-          .td2 {
-            border-right 1px dotted #dddddd;
-            div{
-              background-color #777777;
-              border-radius .2rem;
-              padding .05rem;
-            }
-
-          }
-          .td3 {
-            div{
-              padding .05rem;
-              background-color #5bc0de;
-              border-radius .1rem;
-            }
-          }
-        }
-      }
-    }
+    height: 100%;
   }
+  .logo-text{
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    line-height: 70px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+  }
+  .logo-info{
+    width: 300px;
+    height: 40px;
+    position: absolute;
+    top: 1rem;
+    left: 16%;
+  }
+  .logo-info-a{
+    font-size: 20px;
+    color: #0066cc;
+    font-weight: bold;
+  }
+  .home-copy {
+    position: absolute;
+    left: 0;
+    bottom: .2rem;
+    color: #9ca5a9;
+    text-align: center;
+    width: 100%;
+    font-size: 0.24rem;
+  }
+
+  .home-copy a {
+    color: #9ca5a9;
+  }
+
+  .home-title {
+    width: 100%;
+    color: #999999;
+    font-weight: 600;
+    font-style: normal;
+    padding-top: 1rem;
+    font-size: .4rem;
+    text-align center;
+  }
+  .main {
+    margin .4rem auto;
+    width: 90%;
+    padding .1rem;
+    font-size: .32rem;
+    line-height : .8rem;
+    background-color #fcfcfc;
+    border-radius .3rem;
+  }
+  .label {
+    color: #666666;
+    font-size: .28rem;
+  }
+
+  .btn {
+    width: 60%;
+    margin:.3rem auto;
+    text-align: center;
+    background-color: rgba(51, 153, 255, 1);
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 0.01rem;
+  }
+  .van-picker {
+    font-size: .32rem;
+  }
+    .van-popup .van-popup--top .van-notify {
+      color: #ad0000;
+      background #ffelel
+    }
 </style>
 
