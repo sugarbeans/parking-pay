@@ -1,9 +1,10 @@
 module.exports = {
     publicPath: '',
+    assetsDir: "./",
     devServer: {
         proxy: {
             '/api': {
-                target: 'http://tour.12301cn.cn',
+                target: 'http://parkpay.citygopass.cn',
                 changeOrigin: true,
                 ws: true,
                 pathRewrite: {

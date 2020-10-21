@@ -348,7 +348,7 @@ export default {
   .container1 > div, .container2 > div, .container3 > div {
     width: 0.22rem;
     height: 0.22rem;
-    background-color: #a82424;
+    background-color: #d80100;
 
     border-radius: 100%;
     position: absolute;

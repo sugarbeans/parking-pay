@@ -1,7 +1,7 @@
 <template>
   <div class="page-404">
     <div class="d2-mt">
-      <p class="page-404_title">恭喜你，门票已成功激活！</p>
+      <p class="page-404_title">支付成功！</p>
     </div>
   </div>
 </template>
