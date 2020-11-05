@@ -7,6 +7,7 @@ const store =  new Vuex.Store({
   state: {
     isLoading: false,
     isWeixinBrower:false,
+    paramsStr: ''
   },
   mutations: {
     /**

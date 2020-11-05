@@ -22,6 +22,22 @@ const router = new Router({
             component: () => import('./components/Page404')
         },
         {
+            path: "/payError",
+            name: "payError",
+            meta: {
+                keepAlive: false
+            },
+            component: () => import('./components/PayError')
+        },
+        {
+            path: "/open",
+            name: "open",
+            meta: {
+                keepAlive: false
+            },
+            component: () => import('./components/Open')
+        },
+        {
             path: "/",
             name: "/",
             meta: {

@@ -31,9 +31,10 @@
                  @click='vehicleTap(item)' :key="idx+item">
               {{item}}
             </div>
-            <div :style="{border:buttonBorder}" class='vehicle-panel-row-button vehicle-panel-row-button-img'>
-              <img src="./../assets/img/back.png" class='vehicle-en-button-delete' @click='vehicleTap("delete")'
-                   mode='aspectFit'>
+            <div class='vehicle-panel-row-button vehicle-panel-row-button-img' @click='vehicleTap("delete")'>
+<!--              <img src="./../assets/img/back.png" class='vehicle-en-button-delete' -->
+<!--                   mode='aspectFit'>-->
+<!--              <span style="font-size: .3rem; color: #d80100;font-weight: 600;">回退</span>-->
             </div>
           </div>
 
@@ -64,9 +65,10 @@
             <div class='vehicle-panel-row-button' :style="{border:buttonBorder}" v-for="(item,idx) in keyEnInput2"
                  @click='vehicleTap(item)' :key="idx+item">{{item}}
             </div>
-            <div :style="{border:buttonBorder}" class='vehicle-panel-row-button vehicle-panel-row-button-img'>
-              <img src="./../assets/img/back.png" class='vehicle-en-button-delete' @click='vehicleTap("delete")'
+            <div class='vehicle-panel-row-button vehicle-panel-row-button-img1'>
+              <img src="./../assets/img/back1.png" class='vehicle-en-button-delete' @click='vehicleTap("delete")'
                    mode='aspectFit'>
+<!--              <span style="font-size: .3rem; color: #000;font-weight: 600;">退</span>-->
             </div>
           </div>
           <div class="vehicle-panel-row-last">
@@ -103,6 +105,16 @@
         keyBoardType: 1,
         buttonBorder: "1px solid #ccc"
       };
+    },
+    watch:{
+      oinp:{
+        handler() {
+          this.oinp.length> 0  && (this.keyBoardType = 2)
+          this.oinp.length === 0 && (this.keyBoardType = 1)
+        },
+        deep: true
+      }
+
     },
     methods: {
       vehicleTap: function(event) {
@@ -197,13 +209,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background: url("./../assets/img/back.png") no-repeat;
+  }
+  .vehicle-panel-row-button-img1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .vehicle-en-button-delete {
     width: 0.55rem;
     height: 0.55rem;
   }
   .vehicle-panel-ok {
-    background-color: #d80100;
+    background-color: #009664;
     color: #fff;
     width: 1.5rem;
     height: 0.8rem;
@@ -226,7 +244,7 @@
   .check {
     margin-left: 0.3rem;
     color: #d80100;
-    font-size: 0.28rem;
+    font-size: .42rem;
     display: block;
     line-height: 0.5rem;
   }

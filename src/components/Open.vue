@@ -19,7 +19,7 @@
   .d2-mt {
     width: 100%;
     height: 30%;
-    background-image url("./../assets/img/error.png")
+    background-image url("./../assets/img/open.png")
     background-size 100% 100%;
     font-size: .42rem;
     text-align center

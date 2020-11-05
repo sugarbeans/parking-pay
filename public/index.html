@@ -27,15 +27,16 @@
     <!--定义rem的单位值 当前按750设计稿 100px == 1rem-->
     <script>
       (function (doc, win) {
+        var num = (navigator.appVersion.toString().match(/alipayclient/ig) || []).length > 0 ? 1500 : 750
         var docEl = doc.documentElement,
           resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
           recalc = function () {
             var clientWidth = docEl.clientWidth;
             if (!clientWidth) return;
-            if (clientWidth >= 750) {
+            if (clientWidth >= num) {
               docEl.style.fontSize = '100px';
             } else {
-              docEl.style.fontSize = 100 * (clientWidth / 750) + 'px';
+              docEl.style.fontSize = 100 * (clientWidth / num) + 'px';
             }
           };
         if (!doc.addEventListener) return;
@@ -43,7 +44,7 @@
         doc.addEventListener('DOMContentLoaded', recalc, false);
       })(document, window);
     </script>
-
+    <script src="https://gw.alipayobjects.com/as/g/h5-lib/alipayjsapi/3.1.1/alipayjsapi.min.js"></script>
   </head>
   <body>
   <noscript>

@@ -7,6 +7,7 @@ import "./http";
 import globalVariable from './global_variable'
 Vue.prototype.$globalVariable = globalVariable
 import scroll from './components/scroll'
+
 Vue.use(scroll)
 import Navbar from '@/components/Navbar.vue'
 Vue.component('navbar',Navbar)
