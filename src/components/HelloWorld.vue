@@ -17,20 +17,20 @@
       <div class="title dpf"><img src="./../assets/img/logo-bg.png" alt=""><div>停车缴费</div><div></div></div>
       <div class="card">
         <div class="card-title"><span style="color: #d80100;">*</span>车牌号码</div>
-        <div class="card-numbers dpf">
-          <div class="number dpf" @click="handleChange">{{str0}}</div>
-          <div class="number dpf" @click="handleChange">{{str1}}</div>
+        <div class="card-numbers dpf" @click="handleChange">
+          <div class="number dpf">{{str0}}</div>
+          <div class="number dpf">{{str1}}</div>
           <span style="font-size: .5rem;font-weight: 700;">·</span>
-          <div class="number dpf" @click="handleChange">{{str2}}</div>
-          <div class="number dpf" @click="handleChange">{{str3}}</div>
-          <div class="number dpf" @click="handleChange">{{str4}}</div>
-          <div class="number dpf" @click="handleChange">{{str5}}</div>
-          <div class="number dpf" @click="handleChange">{{str6}}</div>
-          <div class="number dpf" @click="handleChange" v-if="str7">{{str7}}</div>
-          <div class="number number-last" @click="handleChange" v-else><span style="color: #009664; font-size: .5rem;line-height: .6rem;">+</span><br>新能源</div>
+          <div class="number dpf">{{str2}}</div>
+          <div class="number dpf">{{str3}}</div>
+          <div class="number dpf">{{str4}}</div>
+          <div class="number dpf">{{str5}}</div>
+          <div class="number dpf">{{str6}}</div>
+          <div class="number dpf" v-if="str7">{{str7}}</div>
+          <div class="number number-last" v-else><span style="color: #009664; font-size: .5rem;line-height: .6rem;">+</span><br>新能源</div>
         </div>
       </div>
-<!--      <div class="btn" @click="toPay">支付</div>-->
+<!--      <div class="btn" @click="doSomething">支付</div>-->
       <div class="card" v-if="detail">
         <div class="card-title">车牌号码<span style="color: #009664; margin-left: .3rem;">{{str}}</span></div>
         <div class="card-title">订单号码<span style="color: #009664; margin-left: .3rem;">{{detail.orderNo}}</span></div>
@@ -41,6 +41,7 @@
     </div>
     <div class="main" v-else-if="type === '1'">
       <div class="title dpf"><img src="./../assets/img/logo-bg.png" alt=""><div>停车缴费</div><div></div></div>
+      <div class="btn" v-if="this.$globalVariable.isAli" @click="doSomething">同意授权</div>
       <div class="card" v-if="detail">
         <div class="card-title">入口车道<span style="color: #009664; margin-left: .3rem;">{{detail.enterGateName}}</span></div>
         <div class="card-title">订单号码<span style="color: #009664; margin-left: .3rem;">{{detail.orderNo}}</span></div>
@@ -129,25 +130,7 @@
         // 无牌车，入场type=0, 出场type=1
         this.$store.commit('update', {'isLoading': true})
         let _data = null
-        if(this.code == null || this.code === '' ) {
-          if(this.$globalVariable.isWx) {
-            this.code = this.$globalVariable.getUrlParam('code')
-          } else if(this.$globalVariable.isAli) {
-            let url = decodeURI(location.href)
-            let theRequest = {}
-            if (url.indexOf('?') !== -1) {
-              let str = url.substr(1);
-              let strs = str.split('&');
-              for (let i = 0; i < strs.length; i++) {
-                theRequest[strs[i].split('=')[0]] = decodeURIComponent(strs[i].split('=')[1]);
-              }
-            }
-            this.code = theRequest.auth_code
-            alert(this.code)
-          } else {
-            alert('请选择支付宝或者微信扫码！')
-          }
-        }
+        this.$globalVariable.isAli && this.getAliCode()&&(alert(this.code))
         if(this.type==='0') {
           _data = await this.$post('/parking/UnVehicleEnter', {ctrlNo: params.No, code: this.code, pmcd: this.pmcd, payMode: this.payMode})
           if(_data.code === '200') {
@@ -173,6 +156,7 @@
         }
       },
       initData(data) {
+        this.$globalVariable.isAli && this.getAliCode()&&(alert(this.code))
         this.detail = null
           this.totalAmount = '0.00'
           if (data.code === '200') {
@@ -182,6 +166,7 @@
               totalAmount: data.totalAmount,
               enterTime: data.enterTime
             }
+            this.type==='1' && (this.str = data.carNo)
             data.enterGateName && (this.detail.enterGateName = data.enterGateName)
             data.usid && (this.usid = data.usid)
             this.totalAmount = this.detail.totalAmount
@@ -200,6 +185,18 @@
       handleChange() {
         this.keyState = true
       },
+      getAliCode() {
+        let url = decodeURI(location.href)
+        let theRequest = {}
+        if (url.indexOf('?') !== -1) {
+          let str = url.substr(1);
+          let strs = str.split('&');
+          for (let i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split('=')[0]] = decodeURIComponent(strs[i].split('=')[1]);
+          }
+        }
+        this.code = theRequest.auth_code
+      },
       getCode() {
         if(this.$globalVariable.isWx && this.requestid===2) {
           this.code = this.$globalVariable.getUrlParam('code')
@@ -207,23 +204,16 @@
           if (this.code == null || this.code === '' ) {
             window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.$globalVariable.appId}&redirect_uri=${_local}&response_type=code&scope=snsapi_base&state=1#wechat_redirect`
           }
+          this.code && this.doSomething()
         }
         if(this.$globalVariable.isAli && this.requestid===2) {
-          this.code = null
           let _url = window.location.href
           // let _local = encodeURIComponent(_url.split('?')[0])
           let _local = _url
           if (this.code == null || this.code === '' ) {
             window.location.href = `https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=${this.$globalVariable.appId}&scope=auth_base&redirect_uri=${_local}`
           }
-         // window.ap.getAuthCode({
-         //   appId: this.$globalVariable.appId
-         // }, res => {
-         //   let _obj = JSON.stringify(res)
-         //   alert(_obj)
-         // })
         }
-        this.code && this.doSomething()
       },
       handleValidate() {
         // let _msg = `支付金额： ${this.detail.totalAmount}`
@@ -256,7 +246,6 @@
               payMode: this.payMode
             }
             if(this.type === '2') {
-              _params.carNo = this.str
               _params.payScene = 1
               _params.usid = this.code
             } else {
